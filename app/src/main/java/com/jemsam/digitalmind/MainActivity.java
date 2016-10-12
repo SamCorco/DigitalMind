@@ -2,8 +2,11 @@ package com.jemsam.digitalmind;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,8 +31,15 @@ public class MainActivity extends AppCompatActivity {
 
         List<Memory> memories = Memory.getAllMemories();
 
-        for (Memory memoryItem: memories){
-            Log.d(TAG, "memoryItem: " + memoryItem.getTitle());
-        }
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        MemoryAdapter memoryAdapter = new MemoryAdapter(memories);
+        recyclerView.setAdapter(memoryAdapter);
+
     }
 }
