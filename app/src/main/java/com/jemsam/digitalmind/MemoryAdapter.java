@@ -72,12 +72,9 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
             }
         });
 
-        if(!(currentMemory.getIsFavorite()))
-        {
+        if(!(currentMemory.getIsFavorite())){
             holder.favoriteButton.setImageResource(R.drawable.ic_star_border_black_24dp);
-        }
-        else
-        {
+        } else {
             holder.favoriteButton.setImageResource(R.drawable.ic_star_black_24dp);
         }
 

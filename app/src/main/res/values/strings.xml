@@ -5,4 +5,8 @@
     <string name="new_note">Take a note...</string>
     <string name="title">Tilte</string>
     <string name="note">Note</string>
+    <string name="attach_image">Attach Image</string>
+    <string name="dialog_add_image">Add image</string>
+    <string name="dialog_take_photo_item">Take photo</string>
+    <string name="dialog_choose_image_item">Choose image</string>
 </resources>

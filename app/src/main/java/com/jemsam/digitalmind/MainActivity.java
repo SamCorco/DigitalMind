@@ -31,39 +31,10 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-
-
-/*        Memory memory = new Memory("First memory", "My very first memory", new Date(200000000));
-
-         memory = new Memory("AAFirst memory", "AAMy very first memory", new Date(220000000));
-
-        memory.save();
-
-        memory = new Memory("CCSecond memory", "CCMy very second memory", new Date(221100001));
-        memory.save();
-
-
-        memory = new Memory("Third memory", "My very third memory", new Date(200900001));
+        /* Memory memory = new Memory("AAFirst memory", "AAMy very first memory", new Date(220000000));
         memory.save();*/
 
-
-      //  memory = new Memory("BBThird memory", "DDMy very third memory", new Date(222900001));
-      //  memory.save();
-
-
         List<Memory> memories = Memory.getAllMemories();
-
-        //List<Memory> memories = Memory.sortByDate(FALSE);   //or TRUE   --sort by date
-
-        //List<Memory> memories = Memory.sortByTitle();  --sort by title
-
-
-        // key word search (with title)
-        //String keyWord = "First";
-        //List<Memory> memories = Memory.searchMemory(keyWord);
-
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -89,11 +60,7 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
                 ft.commit();
             }
         });
-
-
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -122,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
     public void memoryClicked(Memory memory) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment memoryFragment = new MemoryFragment();
-
         ((MemoryFragment)memoryFragment).setMemoryModel(memory);
         ft.addToBackStack(MemoryFragment.TAG);
         ft.replace(R.id.container, memoryFragment);
