@@ -18,16 +18,14 @@ public class Memory extends SugarRecord {
     public Memory() {
     }
 
+    public Memory(Date date) {
+        this.date = date;
+    }
+
     public Memory(String title, String description, Date date) {
         this.title = title;
         this.description = description;
         this.date = date;
-    }
-
-    public Memory(String title, String description, String date) {
-        this.title = title;
-        this.description = description;
-
     }
 
     public String getTitle() {
@@ -58,28 +56,37 @@ public class Memory extends SugarRecord {
         this.save();
     }
 
-    public static List<Memory> sortByDate(Boolean pIsDesc){
+    public static List<Memory> sortByDate(Boolean isDesc){
 
         Memory.executeQuery("VACUUM");
-        List<Memory> lSortedMemories;
+        List<Memory> sortedMemories;
 
-        if(pIsDesc)
+        if(isDesc)
         {
-            lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Date DESC", null);
+            sortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Date DESC", null);
         }
         else
         {
-            lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Date", null);
+            sortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Date", null);
         }
-        return lSortedMemories;
+        return sortedMemories;
     }
 
-    public static List<Memory> sortByTitle(){
+    public static List<Memory> sortByTitle(Boolean isDesc){
 
         Memory.executeQuery("VACUUM");
-        List<Memory> lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Title", null);
+        List<Memory> sortedMemories;
 
-        return lSortedMemories;
+        if(isDesc)
+        {
+            sortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Title DESC", null);
+        }
+        else
+        {
+            sortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Title", null);
+        }
+
+        return sortedMemories;
     }
 
     public static List<Memory> searchMemory(String keyWord){
@@ -92,6 +99,17 @@ public class Memory extends SugarRecord {
 
     public static List<Memory> getAllMemories(){
         return Memory.listAll(Memory.class);
+    }
+
+    public static void update(Memory memoryToUpdate){
+        List<Memory> memories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE Date = ?", ""+memoryToUpdate.getDate().getTime());
+        if (memories.size() > 0){
+            Memory memory = memories.get(0);
+            memory.setTitle(memoryToUpdate.getTitle());
+            memory.setDescription(memoryToUpdate.getDescription());
+            memory.save();
+        }
+
     }
 
 
