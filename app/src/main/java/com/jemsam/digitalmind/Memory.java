@@ -122,6 +122,7 @@ public class Memory extends SugarRecord {
             Memory memory = memories.get(0);
             memory.setTitle(memoryToUpdate.getTitle());
             memory.setDescription(memoryToUpdate.getDescription());
+            memory.setIsFavorite(memoryToUpdate.getIsFavorite());
             memory.save();
         }
 

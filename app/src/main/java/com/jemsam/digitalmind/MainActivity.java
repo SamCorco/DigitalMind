@@ -34,10 +34,10 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
 
 
 
-/*
-        Memory memory = new Memory("First memory", "My very first memory", new Date(200000000));
 
-/*        Memory memory = new Memory("AAFirst memory", "AAMy very first memory", new Date(220000000));
+/*        Memory memory = new Memory("First memory", "My very first memory", new Date(200000000));
+
+         memory = new Memory("AAFirst memory", "AAMy very first memory", new Date(220000000));
 
         memory.save();
 
@@ -46,8 +46,8 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
 
 
         memory = new Memory("Third memory", "My very third memory", new Date(200900001));
-        memory.save();
-*/
+        memory.save();*/
+
 
       //  memory = new Memory("BBThird memory", "DDMy very third memory", new Date(222900001));
       //  memory.save();
@@ -127,12 +127,6 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
         ft.addToBackStack(MemoryFragment.TAG);
         ft.replace(R.id.container, memoryFragment);
         ft.commit();
-    }
-
-    @Override
-    public void favoriteClicked(Memory memory) {
-        memory.setIsfav(memory.getIsfav);
-        Memory.update(memory);
     }
 
     @Override
