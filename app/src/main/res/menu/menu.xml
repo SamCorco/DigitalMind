@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_alpha_sort"
+        android:icon="@drawable/ic_text_format_24dp"
+        android:title="@string/action_alpha_sort"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_date_sort"
+        android:icon="@drawable/ic_unfold_more_24dp"
+        android:title="@string/action_date_sort"
+        app:showAsAction="ifRoom" />
+
+
+
+</menu>

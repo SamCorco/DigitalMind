@@ -1,14 +1,16 @@
 package com.jemsam.digitalmind;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,13 +22,18 @@ import java.util.List;
 
 public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder> {
 
+    private MemoryClickListener listener;
+
+    interface MemoryClickListener {
+        void memoryClicked(Memory memory);
+    }
+
 
     List<Memory> memories = new ArrayList<>();
+    private Context context;
 
-
-
-    public MemoryAdapter(List<Memory> pMemories) {
-        this.memories = pMemories;
+    public MemoryAdapter(MemoryClickListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -36,11 +43,19 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.title.setText(memories.get(position).getTitle());
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+
+        if (memories.get(position).getTitle() != null){
+            holder.title.setText(memories.get(position).getTitle());
+            holder.title.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.memoryClicked(memories.get(position));
+                }
+            });
+        }
+
         holder.date.setText(memories.get(position).getDate().toString());
-
-
 
         if(!(memories.get(position).getIsFavorite()))
         {
@@ -50,6 +65,14 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
         {
             holder.isFavorite.setImageResource(R.drawable.ic_star_black_24dp);
         }
+
+        holder.date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.memoryClicked(memories.get(position));
+            }
+        });
+
     }
 
     @Override
@@ -57,7 +80,10 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
         return memories.size();
     }
 
-
+    public void setMemories(List<Memory> memories) {
+        this.memories = memories;
+        notifyDataSetChanged();
+    }
 
     /**
      *
@@ -67,32 +93,15 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
         public TextView date;
         public ImageButton isFavorite;
 
-
         public ViewHolder(View v) {
             super(v);
             title = (TextView) v.findViewById(R.id.title);
             date = (TextView) v.findViewById(R.id.date);
             isFavorite = (ImageButton) v.findViewById(R.id.isFavorite);
         }
+
+
+
     }
 
-
-
-
-/*
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        convertView = layoutInflater.inflate(R.layout.element_message, null);
-        TextView txtView = (TextView) convertView.findViewById(R.id.message);
-        txtView.setText(messages.get(position).getMessage());
-        txtView = (TextView) convertView.findViewById(R.id.login);
-        txtView.setText(messages.get(position).getUser());
-
-        if(messages.get(position).getUser().equals("Corto")){
-            txtView.setBackgroundColor(Color.WHITE);
-        }
-
-        return convertView;
-    }
-    */
 }

@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">DigitalMind</string>
+    <string name="action_date_sort">Sort by date</string>
+    <string name="action_alpha_sort">Alpha sorting</string>
+    <string name="new_note">Take a note...</string>
+    <string name="title">Tilte</string>
+    <string name="note">Note</string>
 </resources>
