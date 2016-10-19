@@ -1,9 +1,13 @@
 package com.jemsam.digitalmind;
 
+import android.util.Log;
+
 import com.orm.SugarRecord;
 
 import java.util.Date;
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by jeremy.toussaint on 12/10/16.
@@ -14,6 +18,7 @@ public class Memory extends SugarRecord {
     private String title;
     private String description;
     private Date date;
+    private Boolean isFavorite;
 
     public Memory() {
     }
@@ -22,12 +27,7 @@ public class Memory extends SugarRecord {
         this.title = title;
         this.description = description;
         this.date = date;
-    }
-
-    public Memory(String title, String description, String date) {
-        this.title = title;
-        this.description = description;
-
+        this.isFavorite = false;
     }
 
     public String getTitle() {
@@ -58,6 +58,14 @@ public class Memory extends SugarRecord {
         this.save();
     }
 
+    public Boolean getIsFavorite() {
+        return isFavorite;
+    }
+
+    public void setIsFavorite(Boolean isFavorite) {
+        this.isFavorite = isFavorite;
+    }
+
     public static List<Memory> sortByDate(Boolean pIsDesc){
 
         Memory.executeQuery("VACUUM");
@@ -85,7 +93,7 @@ public class Memory extends SugarRecord {
     public static List<Memory> searchMemory(String keyWord){
 
         Memory.executeQuery("VACUUM");  //SELECT * FROM MEMORY WHERE Title LIKE "%'.?.'%\
-        List<Memory> lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE Title MATCH 'First' ", null);
+        List<Memory> lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE Title LIKE '%" + keyWord + "%'" , null);
 
         return lSortedMemories;
     }

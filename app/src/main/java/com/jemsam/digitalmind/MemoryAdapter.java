@@ -5,6 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -16,11 +18,12 @@ import java.util.List;
 
 
 
-
 public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder> {
 
 
     List<Memory> memories = new ArrayList<>();
+
+
 
     public MemoryAdapter(List<Memory> pMemories) {
         this.memories = pMemories;
@@ -36,6 +39,17 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.title.setText(memories.get(position).getTitle());
         holder.date.setText(memories.get(position).getDate().toString());
+
+
+
+        if(!(memories.get(position).getIsFavorite()))
+        {
+            holder.isFavorite.setImageResource(R.drawable.ic_star_border_black_24dp);
+        }
+        else
+        {
+            holder.isFavorite.setImageResource(R.drawable.ic_star_black_24dp);
+        }
     }
 
     @Override
@@ -44,19 +58,21 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
     }
 
 
+
     /**
      *
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView title;
         public TextView date;
+        public ImageButton isFavorite;
 
 
         public ViewHolder(View v) {
             super(v);
             title = (TextView) v.findViewById(R.id.title);
             date = (TextView) v.findViewById(R.id.date);
-
+            isFavorite = (ImageButton) v.findViewById(R.id.isFavorite);
         }
     }
 

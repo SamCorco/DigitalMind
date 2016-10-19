@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
 /*
         Memory memory = new Memory("First memory", "My very first memory", new Date(200000000));
         memory.save();
@@ -32,17 +35,16 @@ public class MainActivity extends AppCompatActivity {
 
         memory = new Memory("Third memory", "My very third memory", new Date(200900001));
         memory.save();
-
-        List<Memory> memories = Memory.getAllMemories();*/
+*/
+        List<Memory> memories = Memory.getAllMemories();
 
         //List<Memory> memories = Memory.sortByDate(FALSE);   //or TRUE   --sort by date
 
         //List<Memory> memories = Memory.sortByTitle();  --sort by title
 
-        //NOT WORKING - key word search
-        String test = "First";
-        List<Memory> memories = Memory.searchMemory(test);
-
+        // key word search (with title)
+        //String keyWord = "First";
+        //List<Memory> memories = Memory.searchMemory(keyWord);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
