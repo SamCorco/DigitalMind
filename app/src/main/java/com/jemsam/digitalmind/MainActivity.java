@@ -130,6 +130,12 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
     }
 
     @Override
+    public void favoriteClicked(Memory memory) {
+        memory.setIsfav(memory.getIsfav);
+        Memory.update(memory);
+    }
+
+    @Override
     public void onBackPressed() {
         super.onBackPressed();
         memoryAdapter.setMemories(Memory.getAllMemories());

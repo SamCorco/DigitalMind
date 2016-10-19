@@ -26,6 +26,7 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
 
     interface MemoryClickListener {
         void memoryClicked(Memory memory);
+        void favoriteClicked(Memory memory);
     }
 
 
@@ -43,11 +44,19 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
+        holder.title.setText(memories.get(position).getTitle());
+
+
 
         if (memories.get(position).getTitle() != null){
-            holder.title.setText(memories.get(position).getTitle());
             holder.title.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.memoryClicked(memories.get(position));
+                }
+            });
+            holder.date.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     listener.memoryClicked(memories.get(position));
@@ -56,6 +65,7 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
         }
 
         holder.date.setText(memories.get(position).getDate().toString());
+
 
         if(!(memories.get(position).getIsFavorite()))
         {
@@ -72,6 +82,7 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
                 listener.memoryClicked(memories.get(position));
             }
         });
+
 
     }
 
