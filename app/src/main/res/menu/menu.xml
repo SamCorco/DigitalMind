@@ -6,14 +6,19 @@
         android:id="@+id/action_alpha_sort"
         android:icon="@drawable/ic_text_format_24dp"
         android:title="@string/action_alpha_sort"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="collapseActionView" />
 
     <item
         android:id="@+id/action_date_sort"
         android:icon="@drawable/ic_unfold_more_24dp"
         android:title="@string/action_date_sort"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="collapseActionView" />
 
+    <item
+        android:id="@+id/action_fav_sort"
+        android:icon="@drawable/ic_star_white_24dp"
+        android:title="Show favorites"
+        app:showAsAction="ifRoom" />
 
 
 </menu>

@@ -18,7 +18,7 @@ public class Memory extends SugarRecord {
     private String title;
     private String description;
     private Date date;
-    private Boolean isFavorite;
+    private Boolean isFavorite = false;
 
     public Memory() {
     }
@@ -106,7 +106,7 @@ public class Memory extends SugarRecord {
 
     public static List<Memory> searchMemory(String keyWord){
 
-        Memory.executeQuery("VACUUM");  //SELECT * FROM MEMORY WHERE Title LIKE "%'.?.'%\
+        Memory.executeQuery("VACUUM");
         List<Memory> lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE Title LIKE '%" + keyWord + "%'" , null);
 
         return lSortedMemories;
@@ -114,6 +114,14 @@ public class Memory extends SugarRecord {
 
     public static List<Memory> getAllMemories(){
         return Memory.listAll(Memory.class);
+    }
+
+    public static List<Memory> getAllFavorites()
+    {
+        Memory.executeQuery("VACUUM");
+        List<Memory> lFavoriteMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE is_favorite = '1'", null);
+
+        return lFavoriteMemories;
     }
 
     public static void update(Memory memoryToUpdate){

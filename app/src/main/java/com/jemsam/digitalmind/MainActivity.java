@@ -112,6 +112,9 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
                 isAlphaDescSorting = !isAlphaDescSorting;
                 memoryAdapter.setMemories(Memory.sortByTitle(isAlphaDescSorting));
                 break;
+            case R.id.action_fav_sort:
+                memoryAdapter.setMemories(Memory.getAllFavorites());
+                break;
             default:
                 break;
         }

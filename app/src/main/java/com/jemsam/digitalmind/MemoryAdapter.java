@@ -72,21 +72,18 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
             }
         });
 
-        if(!(currentMemory.getIsFavorite()))
-        {
-            holder.favoriteButton.setImageResource(R.drawable.ic_star_border_black_24dp);
-        }
-        else
-        {
-            holder.favoriteButton.setImageResource(R.drawable.ic_star_black_24dp);
+        if (!(currentMemory.getIsFavorite())) {
+          holder.favoriteButton.setImageResource(R.drawable.ic_star_border_black_24dp);
+        } else {
+          holder.favoriteButton.setImageResource(R.drawable.ic_star_black_24dp);
         }
 
         holder.date.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listener.memoryClicked(currentMemory);
-            }
-        });
+                @Override
+                public void onClick(View view) {
+                    listener.memoryClicked(currentMemory);
+                }
+            });
 
 
     }
