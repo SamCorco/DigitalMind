@@ -1,23 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<ScrollView android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
-    >
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@android:color/white">
 
-    <EditText
-        android:hint="@string/title"
-        android:textStyle="bold"
-        android:id="@+id/title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <EditText
-        android:hint="@string/note"
-        android:id="@+id/description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <EditText
+            android:hint="@string/title"
+            android:textStyle="bold"
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
+        <EditText
+            android:hint="@string/note"
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
+        <ImageView
+            android:scaleType="centerCrop"
+            android:id="@+id/imageToAttach"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-</LinearLayout>
+        <Button
+            android:text="@string/attach_image"
+            android:id="@+id/attachImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+</ScrollView>

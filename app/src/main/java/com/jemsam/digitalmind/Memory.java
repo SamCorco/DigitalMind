@@ -19,6 +19,7 @@ public class Memory extends SugarRecord {
     private String description;
     private Date date;
     private Boolean isFavorite = false;
+    private String imagePath;
 
     public Memory() {
     }
@@ -70,6 +71,21 @@ public class Memory extends SugarRecord {
         this.isFavorite = isFavorite;
     }
 
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    public Boolean getFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(Boolean favorite) {
+        isFavorite = favorite;
+    }
 
     public static List<Memory> sortByDate(Boolean isDesc){
 
@@ -131,6 +147,7 @@ public class Memory extends SugarRecord {
             memory.setTitle(memoryToUpdate.getTitle());
             memory.setDescription(memoryToUpdate.getDescription());
             memory.setIsFavorite(memoryToUpdate.getIsFavorite());
+            memory.setImagePath(memoryToUpdate.getImagePath());
             memory.save();
         }
 
