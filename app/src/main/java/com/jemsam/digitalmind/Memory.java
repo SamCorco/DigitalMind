@@ -54,7 +54,45 @@ public class Memory extends SugarRecord {
         this.date = date;
     }
 
+    public void saveMemory(){
+        this.save();
+    }
+
+    public static List<Memory> sortByDate(Boolean pIsDesc){
+
+        Memory.executeQuery("VACUUM");
+        List<Memory> lSortedMemories;
+
+        if(pIsDesc)
+        {
+            lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Date DESC", null);
+        }
+        else
+        {
+            lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Date", null);
+        }
+        return lSortedMemories;
+    }
+
+    public static List<Memory> sortByTitle(){
+
+        Memory.executeQuery("VACUUM");
+        List<Memory> lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Title", null);
+
+        return lSortedMemories;
+    }
+
+    public static List<Memory> searchMemory(String keyWord){
+
+        Memory.executeQuery("VACUUM");  //SELECT * FROM MEMORY WHERE Title LIKE "%'.?.'%\
+        List<Memory> lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE Title MATCH 'First' ", null);
+
+        return lSortedMemories;
+    }
+
     public static List<Memory> getAllMemories(){
         return Memory.listAll(Memory.class);
     }
+
+
 }

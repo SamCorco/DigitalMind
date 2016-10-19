@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+//*****************************//
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -19,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+/*
         Memory memory = new Memory("First memory", "My very first memory", new Date(200000000));
         memory.save();
 
@@ -29,7 +33,15 @@ public class MainActivity extends AppCompatActivity {
         memory = new Memory("Third memory", "My very third memory", new Date(200900001));
         memory.save();
 
-        List<Memory> memories = Memory.getAllMemories();
+        List<Memory> memories = Memory.getAllMemories();*/
+
+        //List<Memory> memories = Memory.sortByDate(FALSE);   //or TRUE   --sort by date
+
+        //List<Memory> memories = Memory.sortByTitle();  --sort by title
+
+        //NOT WORKING - key word search
+        String test = "First";
+        List<Memory> memories = Memory.searchMemory(test);
 
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
