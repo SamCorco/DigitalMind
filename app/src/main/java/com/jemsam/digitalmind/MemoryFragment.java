@@ -1,5 +1,7 @@
 package com.jemsam.digitalmind;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -8,9 +10,11 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,10 +24,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 
+import static android.R.attr.data;
 import static android.app.Activity.RESULT_OK;
 
 
@@ -52,10 +61,16 @@ public class MemoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_memory_detail, container, false);
 
         titleEd = (EditText) view.findViewById(R.id.title);
-        titleEd.setText(memoryModel.getTitle());
+        if (memoryModel.getTitle() != null){
+            titleEd.setText(memoryModel.getTitle());
+
+        }
 
         descriptionEd = (EditText) view.findViewById(R.id.description);
-        descriptionEd.setText(memoryModel.getDescription());
+        if (memoryModel.getDescription() != null){
+            descriptionEd.setText(memoryModel.getDescription());
+
+        }
 
         imageToAttach = (ImageView) view.findViewById(R.id.imageToAttach);
         if (memoryModel.getImagePath() != null){
@@ -93,10 +108,18 @@ public class MemoryFragment extends Fragment {
     }
 
     private void openCamera() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File f = new File(Environment.getExternalStorageDirectory(), TEMP_FILE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+        final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT,  FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider",getTempFile()));//Uri.fromFile(getTempFile())
         startActivityForResult(intent, REQUEST_CAMERA);
+    }
+
+    private File getTempFile(){
+        //it will return /sdcard/image.tmp
+        final File path = new File( Environment.getExternalStorageDirectory(), getContext().getPackageName() );
+        if(!path.exists()){
+            path.mkdir();
+        }
+        return new File(path, "image.tmp");
     }
 
     @Override
@@ -114,7 +137,7 @@ public class MemoryFragment extends Fragment {
             if (requestCode == IMG_RESULT && resultCode == RESULT_OK && null != data) {
                 getImageFromGallery(data);
             } else if(requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
-                getImageFromCamera();
+                getImageFromCamera(data);
             }
         } catch (Exception e) {
             Toast.makeText(getContext(), "Please try again", Toast.LENGTH_LONG).show();
@@ -133,37 +156,31 @@ public class MemoryFragment extends Fragment {
         cursor.close();
     }
 
-    private void getImageFromCamera() {
-        File f = new File(Environment.getExternalStorageDirectory().toString());
-        for (File temp : f.listFiles()) {
-            if (temp.getName().equals(TEMP_FILE)) {
-                f = temp;
-                break;
-            }
-        }
+    private void getImageFromCamera(Intent data) {
+        final File file = getTempFile();
+        Bitmap bitmap = null;
         try {
-            Bitmap bm;
-            BitmapFactory.Options btmapOptions = new BitmapFactory.Options();
-            bm = BitmapFactory.decodeFile(f.getAbsolutePath(),btmapOptions);
-            String path = Environment.getExternalStorageDirectory()
-                    + File.separator
-                    + getContext().getString(R.string.app_name);
-
-            f.delete();
-            OutputStream fOut = null;
-            File dir = new File(path);
-            dir.mkdirs();
-            File file = new File(dir,String.valueOf(System.currentTimeMillis()) + ".jpg");
-            fOut = new FileOutputStream(file);
-            bm.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
-            fOut.flush();
-            fOut.close();
-
-            memoryModel.setImagePath(file.getAbsolutePath());
-            imageToAttach.setImageBitmap(bm);
-        } catch (Exception e) {
+            bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider",file));//Uri.fromFile(file)
+        } catch (IOException e) {
             e.printStackTrace();
         }
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, stream);
+        byte[] byteArray = stream.toByteArray(); // convert camera photo to byte array
+        FileOutputStream fo = null;
+        try {
+            fo = new FileOutputStream(file);
+            fo.write(byteArray);
+            fo.flush();
+            fo.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        memoryModel.setImagePath(file.getAbsolutePath());
+        imageToAttach.setImageBitmap(bitmap);
     }
 
 }

@@ -22,6 +22,7 @@
             android:layout_height="wrap_content" />
 
         <ImageView
+            android:adjustViewBounds="true"
             android:scaleType="centerCrop"
             android:id="@+id/imageToAttach"
             android:layout_width="match_parent"
