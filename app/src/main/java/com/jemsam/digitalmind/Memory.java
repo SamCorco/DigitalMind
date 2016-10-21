@@ -20,6 +20,7 @@ public class Memory extends SugarRecord {
     private Date date;
     private Boolean isFavorite = false;
     private String imagePath;
+    private float rating = 2.5f;
 
     public Memory() {
     }
@@ -87,6 +88,14 @@ public class Memory extends SugarRecord {
         isFavorite = favorite;
     }
 
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+
     public static List<Memory> sortByDate(Boolean isDesc){
 
         Memory.executeQuery("VACUUM");
@@ -148,10 +157,20 @@ public class Memory extends SugarRecord {
             memory.setDescription(memoryToUpdate.getDescription());
             memory.setIsFavorite(memoryToUpdate.getIsFavorite());
             memory.setImagePath(memoryToUpdate.getImagePath());
+            memory.setRating(memoryToUpdate.getRating());
             memory.save();
         }
 
     }
 
 
+    public static Memory getMemory(Long memoryId) {
+        List<Memory> memories = Memory.find(Memory.class, "id = ?", String.valueOf(memoryId));
+
+        if (memories.size() > 0){
+            return memories.get(0);
+        }
+
+        return null;
+    }
 }

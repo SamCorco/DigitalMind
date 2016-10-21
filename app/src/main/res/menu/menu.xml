@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/search"
+        android:title="@string/search"
+        android:icon="@drawable/ic_find_replace_black_24dp"
+        app:showAsAction="ifRoom"
+        android:actionViewClass="android.support.v7.widget.SearchView" />
+
     <item
         android:id="@+id/action_alpha_sort"
         android:icon="@drawable/ic_text_format_24dp"
@@ -18,7 +24,7 @@
         android:id="@+id/action_fav_sort"
         android:icon="@drawable/ic_star_white_24dp"
         android:title="Show favorites"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="collapseActionView" />
 
 
 </menu>

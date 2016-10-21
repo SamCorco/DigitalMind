@@ -9,4 +9,7 @@
     <string name="dialog_add_image">Add image</string>
     <string name="dialog_take_photo_item">Take photo</string>
     <string name="dialog_choose_image_item">Choose image</string>
+    <string name="addTag">+</string>
+    <string name="tag_hint">Insert a tag here..</string>
+    <string name="search">Rechercher..</string>
 </resources>

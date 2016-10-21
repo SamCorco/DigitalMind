@@ -1,7 +1,5 @@
 package com.jemsam.digitalmind;
 
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,29 +8,30 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.util.List;
 
-import static android.R.attr.data;
 import static android.app.Activity.RESULT_OK;
 
 
@@ -47,9 +46,11 @@ public class MemoryFragment extends Fragment {
     private static final int IMG_RESULT = 1;
     private static final String TEMP_FILE = "temp.jpg";
     private Memory memoryModel;
-    private EditText titleEd;
-    private EditText descriptionEd;
+    private EditText titleEt;
+    private EditText descriptionEt;
     private ImageView imageToAttach;
+    private RatingBar ratingBar;
+    private LinearLayout tagContainer;
 
     public void setMemoryModel(Memory memoryModel) {
         this.memoryModel = memoryModel;
@@ -60,15 +61,15 @@ public class MemoryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_memory_detail, container, false);
 
-        titleEd = (EditText) view.findViewById(R.id.title);
+        titleEt = (EditText) view.findViewById(R.id.title);
         if (memoryModel.getTitle() != null){
-            titleEd.setText(memoryModel.getTitle());
+            titleEt.setText(memoryModel.getTitle());
 
         }
 
-        descriptionEd = (EditText) view.findViewById(R.id.description);
+        descriptionEt = (EditText) view.findViewById(R.id.description);
         if (memoryModel.getDescription() != null){
-            descriptionEd.setText(memoryModel.getDescription());
+            descriptionEt.setText(memoryModel.getDescription());
 
         }
 
@@ -76,6 +77,36 @@ public class MemoryFragment extends Fragment {
         if (memoryModel.getImagePath() != null){
             imageToAttach.setImageBitmap(BitmapFactory.decodeFile(memoryModel.getImagePath()));
         }
+
+        ratingBar = (RatingBar) view.findViewById(R.id.ratingBar);
+        ratingBar.setRating(memoryModel.getRating());
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                Log.d(TAG, "onRatingChanged: " + rating);
+                memoryModel.setRating(rating);
+
+            }
+        });
+
+        tagContainer = (LinearLayout) view.findViewById(R.id.tagContainer);
+        appendAllTags();
+
+
+
+        final EditText tagEd = (EditText) view.findViewById(R.id.tagEt);
+        Button addTagBtn = (Button) view.findViewById(R.id.addTag);
+        addTagBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String tagContent = tagEd.getText().toString();
+                Tag tag = Tag.getTag(tagContent);
+                tag.linkMemory(memoryModel);
+                appendAllTags();
+                tagEd.setText("");
+            }
+        });
+
+
 
         Button attachImageButton = (Button) view.findViewById(R.id.attachImage);
         attachImageButton.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +133,24 @@ public class MemoryFragment extends Fragment {
         return view;
     }
 
+    private void appendAllTags() {
+        tagContainer.removeAllViews();
+        List<TagMemory> tagMemories = TagMemory.getAllTagMemories();
+
+        for (TagMemory tagMemory: tagMemories){
+            if (tagMemory.getMemoryId().equals(memoryModel.getId())){
+                TextView tv = new TextView(getContext());
+                Tag tag = Tag.getTag(tagMemory.getTagId());
+                if (tag != null){
+                    tv.setText("#" + tag.getTagContent());
+                    tagContainer.addView(tv);
+                }
+
+            }
+        }
+
+    }
+
     private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, IMG_RESULT);
@@ -124,8 +173,8 @@ public class MemoryFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        memoryModel.setTitle(titleEd.getText().toString());
-        memoryModel.setDescription(descriptionEd.getText().toString());
+        memoryModel.setTitle(titleEt.getText().toString());
+        memoryModel.setDescription(descriptionEt.getText().toString());
         Memory.update(memoryModel);
         super.onDestroy();
     }
