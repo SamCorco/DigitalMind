@@ -28,6 +28,8 @@ public class Tag extends SugarRecord {
     }
 
     public static Tag getTag(String tagContent){
+        tagContent = tagContent.toLowerCase();
+
         List<Tag> tags = getAllTags();
 
         if (tags.size() > 0){
@@ -55,6 +57,8 @@ public class Tag extends SugarRecord {
     }
 
     public static Tag getTagByWord(String word){
+        word = word.toLowerCase();
+
         List<Tag> tags = Tag.find(Tag.class, "tag_content = ?", String.valueOf(word));
 
         if (tags.size() > 0){

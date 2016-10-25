@@ -1,6 +1,7 @@
 package com.jemsam.digitalmind;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,22 +45,12 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
         final Memory currentMemory = memories.get(position);
         holder.title.setText(currentMemory.getTitle());
 
-
-
-        if (currentMemory.getTitle() != null){
-            holder.title.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.memoryClicked(currentMemory);
-                }
-            });
-            holder.date.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.memoryClicked(currentMemory);
-                }
-            });
-        }
+        holder.rootCardview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.memoryClicked(currentMemory);
+            }
+        });
 
         holder.date.setText(currentMemory.getDate().toString());
 
@@ -103,12 +94,14 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
      *
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        private final CardView rootCardview;
         public TextView title;
         public TextView date;
         public ImageButton favoriteButton;
 
         public ViewHolder(View v) {
             super(v);
+            rootCardview = (CardView) v.findViewById(R.id.cardview);
             title = (TextView) v.findViewById(R.id.title);
             date = (TextView) v.findViewById(R.id.date);
             favoriteButton = (ImageButton) v.findViewById(R.id.isFavorite);
@@ -116,6 +109,12 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
 
 
 
+    }
+
+    public void remove(int position) {
+        Memory.delete(memories.get(position));
+        memories.remove(position);
+        notifyItemRemoved(position);
     }
 
 }

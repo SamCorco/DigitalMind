@@ -1,23 +1,24 @@
 package com.jemsam.digitalmind;
 
 import android.content.Context;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
     private MenuItem mSearchAction;
     private boolean isSearchOpened = false;
     private EditText edtSeach;
+    private FloatingActionButton addNote;
 
 
     @Override
@@ -57,10 +59,15 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
         memoryAdapter.setMemories(memories);
         recyclerView.setAdapter(memoryAdapter);
 
-        Button newNote = (Button) findViewById(R.id.newNote);
-        newNote.setOnClickListener(new View.OnClickListener() {
+        ItemTouchHelper.Callback callback = new MemoryTouchHelper(memoryAdapter);
+        ItemTouchHelper helper = new ItemTouchHelper(callback);
+        helper.attachToRecyclerView(recyclerView);
+
+        addNote = (FloatingActionButton) findViewById(R.id.newNote);
+        addNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                addNote.setVisibility(View.GONE);
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 Fragment memoryFragment = new MemoryFragment();
                 Memory memory = new Memory(new Date());
@@ -71,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
                 ft.commit();
             }
         });
+
     }
 
     @Override
@@ -115,7 +123,9 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
             action.setDisplayShowTitleEnabled(true);
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(edtSeach.getWindowToken(), 0);
-            mSearchAction.setIcon(getResources().getDrawable(R.drawable.ic_find_replace_black_24dp));
+            mSearchAction.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_search_white_24px));
+
+            memoryAdapter.setMemories(Memory.getAllMemories());
 
             isSearchOpened = false;
         } else {
@@ -137,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
             edtSeach.requestFocus();
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(edtSeach, InputMethodManager.SHOW_IMPLICIT);
-            mSearchAction.setIcon(getResources().getDrawable(R.drawable.ic_cancel_black_24dp));
+            mSearchAction.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_cancel_black_24dp));
 
             isSearchOpened = true;
         }
@@ -165,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
 
     @Override
     public void memoryClicked(Memory memory) {
+        addNote.setVisibility(View.GONE);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment memoryFragment = new MemoryFragment();
         ((MemoryFragment)memoryFragment).setMemoryModel(memory);
@@ -175,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
 
     @Override
     public void onBackPressed() {
+        addNote.setVisibility(View.VISIBLE);
         if(isSearchOpened) {
             handleMenuSearch();
             return;

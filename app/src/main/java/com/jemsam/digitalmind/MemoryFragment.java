@@ -1,7 +1,12 @@
 package com.jemsam.digitalmind;
 
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.LabeledIntent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,16 +14,22 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
@@ -30,6 +41,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
@@ -56,10 +68,14 @@ public class MemoryFragment extends Fragment {
         this.memoryModel = memoryModel;
     }
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_memory_detail, container, false);
+        setHasOptionsMenu(true);
+        setRetainInstance(true);
+
 
         titleEt = (EditText) view.findViewById(R.id.title);
         if (memoryModel.getTitle() != null){
@@ -94,7 +110,7 @@ public class MemoryFragment extends Fragment {
 
 
         final EditText tagEd = (EditText) view.findViewById(R.id.tagEt);
-        Button addTagBtn = (Button) view.findViewById(R.id.addTag);
+        ImageButton addTagBtn = (ImageButton) view.findViewById(R.id.addTag);
         addTagBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -108,7 +124,7 @@ public class MemoryFragment extends Fragment {
 
 
 
-        Button attachImageButton = (Button) view.findViewById(R.id.attachImage);
+        ImageButton attachImageButton = (ImageButton) view.findViewById(R.id.attachImage);
         attachImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -132,6 +148,30 @@ public class MemoryFragment extends Fragment {
 
         return view;
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.menu_detail, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.share:
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, "Memory \"" + memoryModel.getTitle() + "\" extracted from my mind:\n\n" + memoryModel.getDescription());
+                sendIntent.setType("text/plain");
+                startActivity(Intent.createChooser(sendIntent, "Spread your mind!"));
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private void appendAllTags() {
         tagContainer.removeAllViews();

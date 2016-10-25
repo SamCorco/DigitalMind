@@ -12,4 +12,6 @@
     <string name="addTag">+</string>
     <string name="tag_hint">Insert a tag here..</string>
     <string name="search">Rechercher..</string>
+    <string name="share">Partager</string>
+    <string name="share_chooser_text">Share it</string>
 </resources>
