@@ -1,12 +1,7 @@
-package com.jemsam.digitalmind;
+package com.jemsam.digitalmind.ui.fragment;
 
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.LabeledIntent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,12 +9,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,7 +20,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -36,12 +28,18 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jemsam.digitalmind.model.Memory;
+import com.jemsam.digitalmind.R;
+import com.jemsam.digitalmind.model.Tag;
+import com.jemsam.digitalmind.model.TagMemory;
+import com.jemsam.digitalmind.model.User;
+import com.jemsam.digitalmind.utils.Utils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
@@ -63,6 +61,7 @@ public class MemoryFragment extends Fragment {
     private ImageView imageToAttach;
     private RatingBar ratingBar;
     private LinearLayout tagContainer;
+    private User user;
 
     public void setMemoryModel(Memory memoryModel) {
         this.memoryModel = memoryModel;
@@ -75,6 +74,8 @@ public class MemoryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_memory_detail, container, false);
         setHasOptionsMenu(true);
         setRetainInstance(true);
+
+        user = User.getUser(Utils.getPrefLogin(getContext()), Utils.getPrefPassword(getContext()));
 
 
         titleEt = (EditText) view.findViewById(R.id.title);
@@ -115,7 +116,7 @@ public class MemoryFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String tagContent = tagEd.getText().toString();
-                Tag tag = Tag.getTag(tagContent);
+                Tag tag = Tag.getTag(tagContent, user);
                 tag.linkMemory(memoryModel);
                 appendAllTags();
                 tagEd.setText("");

@@ -14,4 +14,11 @@
     <string name="search">Rechercher..</string>
     <string name="share">Partager</string>
     <string name="share_chooser_text">Share it</string>
+    <string name="error_empty">Field required</string>
+    <string name="landing_login">Login</string>
+    <string name="landing_signin">Sign in</string>
+    <string name="landing_button_connect">Connect</string>
+    <string name="landing_button_register">Register</string>
+    <string name="password">Password</string>
+
 </resources>

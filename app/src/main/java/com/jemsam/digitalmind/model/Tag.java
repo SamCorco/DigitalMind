@@ -1,4 +1,4 @@
-package com.jemsam.digitalmind;
+package com.jemsam.digitalmind.model;
 
 import com.orm.SugarRecord;
 
@@ -9,28 +9,30 @@ import java.util.List;
  */
 
 public class Tag extends SugarRecord {
-
+    private Long userId;
     private String tagContent;
 
     public Tag() {
     }
 
-    public Tag(String tagContent) {
+    public Tag(String tagContent, Long userId) {
         this.tagContent = tagContent;
+        this.userId = userId;
     }
 
     public String getTagContent() {
         return tagContent;
     }
 
-    public static List<Tag> getAllTags(){
-        return Tag.listAll(Tag.class);
+    public static List<Tag> getAllTags(User user){
+        /*return Tag.listAll(Tag.class);*/
+        return  Tag.findWithQuery(Tag.class, "SELECT * FROM TAG WHERE user_id = " + user.getId());
     }
 
-    public static Tag getTag(String tagContent){
+    public static Tag getTag(String tagContent, User user){
         tagContent = tagContent.toLowerCase();
 
-        List<Tag> tags = getAllTags();
+        List<Tag> tags = getAllTags(user);
 
         if (tags.size() > 0){
             for (Tag tag: tags){
@@ -40,7 +42,7 @@ public class Tag extends SugarRecord {
             }
         }
 
-        Tag tag = new Tag(tagContent);
+        Tag tag = new Tag(tagContent, user.getId());
         tag.save();
 
         return tag;
@@ -56,10 +58,10 @@ public class Tag extends SugarRecord {
         return null;
     }
 
-    public static Tag getTagByWord(String word){
+    public static Tag getTagByWord(String word, User user){
         word = word.toLowerCase();
 
-        List<Tag> tags = Tag.find(Tag.class, "tag_content = ?", String.valueOf(word));
+        List<Tag> tags = Tag.findWithQuery(Tag.class, "SELECT * FROM Tag WHERE tag_content = '" + String.valueOf(word) + "' AND user_id = " + user.getId());
 
         if (tags.size() > 0){
             return tags.get(0);

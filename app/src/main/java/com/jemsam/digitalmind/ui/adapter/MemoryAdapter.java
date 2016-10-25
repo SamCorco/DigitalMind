@@ -1,4 +1,4 @@
-package com.jemsam.digitalmind;
+package com.jemsam.digitalmind.ui.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.CardView;
@@ -8,6 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.jemsam.digitalmind.model.Memory;
+import com.jemsam.digitalmind.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +25,7 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.ViewHolder
 
     private MemoryClickListener listener;
 
-    interface MemoryClickListener {
+    public interface MemoryClickListener {
         void memoryClicked(Memory memory);
     }
 

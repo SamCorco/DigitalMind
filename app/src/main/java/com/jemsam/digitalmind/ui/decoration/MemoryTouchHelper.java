@@ -1,7 +1,10 @@
-package com.jemsam.digitalmind;
+package com.jemsam.digitalmind.ui.decoration;
 
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+
+import com.jemsam.digitalmind.ui.adapter.MemoryAdapter;
+
 
 /**
  * Created by jeremy.toussaint on 25/10/16.

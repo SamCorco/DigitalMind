@@ -1,13 +1,9 @@
-package com.jemsam.digitalmind;
-
-import android.util.Log;
+package com.jemsam.digitalmind.model;
 
 import com.orm.SugarRecord;
 
 import java.util.Date;
 import java.util.List;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by jeremy.toussaint on 12/10/16.
@@ -15,6 +11,7 @@ import static android.content.ContentValues.TAG;
 
 public class Memory extends SugarRecord {
 
+    private Long userId;
     private String title;
     private String description;
     private Date date;
@@ -25,7 +22,8 @@ public class Memory extends SugarRecord {
     public Memory() {
     }
 
-    public Memory(Date date) {
+    public Memory(Date date, User user) {
+        this.userId = user.getId();
         this.date = date;
     }
 
@@ -34,6 +32,14 @@ public class Memory extends SugarRecord {
         this.description = description;
         this.date = date;
         this.isFavorite = false;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getTitle() {
@@ -96,55 +102,56 @@ public class Memory extends SugarRecord {
         this.rating = rating;
     }
 
-    public static List<Memory> sortByDate(Boolean isDesc){
+    public static List<Memory> sortByDate(Boolean isDesc, User user){
 
         Memory.executeQuery("VACUUM");
         List<Memory> sortedMemories;
 
         if(isDesc)
         {
-            sortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Date DESC", null);
+            sortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE user_id = " + user.getId() + " ORDER BY Date DESC");
         }
         else
         {
-            sortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Date", null);
+            sortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE user_id = " + user.getId() + " ORDER BY Date");
         }
         return sortedMemories;
     }
 
-    public static List<Memory> sortByTitle(Boolean isDesc){
+    public static List<Memory> sortByTitle(Boolean isDesc, User user){
 
         Memory.executeQuery("VACUUM");
         List<Memory> sortedMemories;
 
         if(isDesc)
         {
-            sortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Title DESC", null);
+            sortedMemories = Memory.findWithQuery(Memory.class,  "SELECT * FROM MEMORY WHERE user_id = " + user.getId() + " ORDER BY Title DESC");
         }
         else
         {
-            sortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY ORDER BY Title", null);
+            sortedMemories = Memory.findWithQuery(Memory.class,  "SELECT * FROM MEMORY WHERE user_id = " + user.getId() + " ORDER BY Title");
         }
 
         return sortedMemories;
     }
 
-    public static List<Memory> searchMemory(String keyWord){
+    public static List<Memory> searchMemory(String keyWord, User user){
 
         Memory.executeQuery("VACUUM");
-        List<Memory> lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE Title LIKE '%" + keyWord + "%'" , null);
+        List<Memory> lSortedMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE Title LIKE '%" + keyWord + "%' AND user_id = " + user.getId());
 
         return lSortedMemories;
     }
 
-    public static List<Memory> getAllMemories(){
-        return Memory.listAll(Memory.class);
+    public static List<Memory> getAllMemories(User user){
+        /*return Memory.listAll(Memory.class);*/
+        return  Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE user_id = " + user.getId());
     }
 
-    public static List<Memory> getAllFavorites()
+    public static List<Memory> getAllFavorites(User user)
     {
         Memory.executeQuery("VACUUM");
-        List<Memory> lFavoriteMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE is_favorite = '1'", null);
+        List<Memory> lFavoriteMemories = Memory.findWithQuery(Memory.class, "SELECT * FROM MEMORY WHERE is_favorite = '1' AND user_id = " + user.getId());
 
         return lFavoriteMemories;
     }

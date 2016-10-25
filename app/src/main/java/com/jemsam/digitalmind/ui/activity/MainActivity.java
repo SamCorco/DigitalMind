@@ -1,4 +1,4 @@
-package com.jemsam.digitalmind;
+package com.jemsam.digitalmind.ui.activity;
 
 import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
@@ -20,6 +20,17 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.jemsam.digitalmind.model.Memory;
+
+import com.jemsam.digitalmind.model.User;
+import com.jemsam.digitalmind.ui.adapter.MemoryAdapter;
+import com.jemsam.digitalmind.ui.decoration.MemoryTouchHelper;
+import com.jemsam.digitalmind.R;
+import com.jemsam.digitalmind.model.Tag;
+import com.jemsam.digitalmind.model.TagMemory;
+import com.jemsam.digitalmind.ui.fragment.MemoryFragment;
+import com.jemsam.digitalmind.utils.Utils;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
     private boolean isSearchOpened = false;
     private EditText edtSeach;
     private FloatingActionButton addNote;
+    private User user;
 
 
     @Override
@@ -46,8 +58,9 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
         setContentView(R.layout.activity_main);
         /* Memory memory = new Memory("AAFirst memory", "AAMy very first memory", new Date(220000000));
         memory.save();*/
+        user = User.getUser(Utils.getPrefLogin(this), Utils.getPrefPassword(this));
 
-        List<Memory> memories = Memory.getAllMemories();
+        List<Memory> memories = Memory.getAllMemories(user);
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -70,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
                 addNote.setVisibility(View.GONE);
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 Fragment memoryFragment = new MemoryFragment();
-                Memory memory = new Memory(new Date());
+                Memory memory = new Memory(new Date(), user);
                 memory.save();
                 ((MemoryFragment)memoryFragment).setMemoryModel(memory);
                 ft.addToBackStack(MemoryFragment.TAG);
@@ -101,14 +114,14 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
                 break;
             case R.id.action_date_sort:
                 isDateDescSorting = !isDateDescSorting;
-                memoryAdapter.setMemories(Memory.sortByDate(isDateDescSorting));
+                memoryAdapter.setMemories(Memory.sortByDate(isDateDescSorting, user));
                 break;
             case R.id.action_alpha_sort:
                 isAlphaDescSorting = !isAlphaDescSorting;
-                memoryAdapter.setMemories(Memory.sortByTitle(isAlphaDescSorting));
+                memoryAdapter.setMemories(Memory.sortByTitle(isAlphaDescSorting, user));
                 break;
             case R.id.action_fav_sort:
-                memoryAdapter.setMemories(Memory.getAllFavorites());
+                memoryAdapter.setMemories(Memory.getAllFavorites(user));
                 break;
             default:
                 break;
@@ -125,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
             imm.hideSoftInputFromWindow(edtSeach.getWindowToken(), 0);
             mSearchAction.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_search_white_24px));
 
-            memoryAdapter.setMemories(Memory.getAllMemories());
+            memoryAdapter.setMemories(Memory.getAllMemories(user));
 
             isSearchOpened = false;
         } else {
@@ -155,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
 
     private void doSearch() {
         List<Memory> memories = new ArrayList<>();
-        Tag tag = Tag.getTagByWord(edtSeach.getText().toString());
+        Tag tag = Tag.getTagByWord(edtSeach.getText().toString(), user);
         if(tag != null){
             List<TagMemory> tagMemories = TagMemory.getAllTagMemories();
             for (TagMemory tagMemory: tagMemories){
@@ -192,6 +205,6 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
             return;
         }
         super.onBackPressed();
-        memoryAdapter.setMemories(Memory.getAllMemories());
+        memoryAdapter.setMemories(Memory.getAllMemories(user));
     }
 }

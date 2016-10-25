@@ -1,4 +1,4 @@
-package com.jemsam.digitalmind;
+package com.jemsam.digitalmind.model;
 
 import com.orm.SugarRecord;
 
