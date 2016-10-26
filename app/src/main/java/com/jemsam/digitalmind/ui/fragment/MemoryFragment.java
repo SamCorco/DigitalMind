@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.ScrollingView;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +32,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +42,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -67,7 +68,7 @@ import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
  * Created by jeremy.toussaint on 19/10/16.
  */
 
-public class MemoryFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener {
+public class MemoryFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, CustomSupportMapFragment.OnTouchListener {
 
     public static final String TAG = MemoryFragment.class.getSimpleName();
     private static final int REQUEST_CAMERA = 0;
@@ -80,6 +81,7 @@ public class MemoryFragment extends Fragment implements GoogleApiClient.Connecti
     private RatingBar ratingBar;
     private LinearLayout tagContainer;
     private User user;
+    public static boolean mMapIsTouched = false;
 
     private GoogleMap googleMap;
     private static final int MY_PERMISSION_ACCESS_COARSE_LOCATION = 11; //need this ???
@@ -92,6 +94,7 @@ public class MemoryFragment extends Fragment implements GoogleApiClient.Connecti
             Log.i(TAG,"Location: " + location);
         }
     };
+    private ScrollView scrollView;
 
     public void setMemoryModel(Memory memoryModel) {
         this.memoryModel = memoryModel;
@@ -106,6 +109,8 @@ public class MemoryFragment extends Fragment implements GoogleApiClient.Connecti
         setRetainInstance(true);
 
         user = User.getUser(Utils.getPrefLogin(getContext()), Utils.getPrefPassword(getContext()));
+
+        scrollView = (ScrollView) view.findViewById(R.id.scrollView);
 
 
         titleEt = (EditText) view.findViewById(R.id.title);
@@ -180,7 +185,8 @@ public class MemoryFragment extends Fragment implements GoogleApiClient.Connecti
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity()).addApi(LocationServices.API)
                 .build();
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        CustomSupportMapFragment mapFragment = (CustomSupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        mapFragment.setTouchListener(this);
         googleMap = mapFragment.getMap();
 
         googleMap.setMyLocationEnabled(true);
@@ -366,4 +372,10 @@ public class MemoryFragment extends Fragment implements GoogleApiClient.Connecti
 
     }
 
+    @Override
+    public void onTouch(boolean isTouched) {
+        if (isTouched){
+            scrollView.requestDisallowInterceptTouchEvent(true);
+        }
+    }
 }
