@@ -20,5 +20,7 @@
     <string name="landing_button_connect">Connect</string>
     <string name="landing_button_register">Register</string>
     <string name="password">Password</string>
+    <string name="showAll">Show all memories</string>
+    <string name="showOne">Show this memory</string>
 
 </resources>

@@ -26,6 +26,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -33,6 +35,7 @@ import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -40,6 +43,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -58,6 +62,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import static android.R.attr.button;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.LOCATION_SERVICE;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
@@ -67,7 +72,7 @@ import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
  * Created by jeremy.toussaint on 19/10/16.
  */
 
-public class MemoryFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener {
+public class MemoryFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback {
 
     public static final String TAG = MemoryFragment.class.getSimpleName();
     private static final int REQUEST_CAMERA = 0;
@@ -92,6 +97,7 @@ public class MemoryFragment extends Fragment implements GoogleApiClient.Connecti
             Log.i(TAG,"Location: " + location);
         }
     };
+    private boolean allPositionRequested = true;
 
     public void setMemoryModel(Memory memoryModel) {
         this.memoryModel = memoryModel;
@@ -177,15 +183,51 @@ public class MemoryFragment extends Fragment implements GoogleApiClient.Connecti
             }
         });
 
-        mGoogleApiClient = new GoogleApiClient.Builder(getActivity()).addApi(LocationServices.API)
+        ToggleButton showAllMemories = (ToggleButton) view.findViewById(R.id.showAllMemories);
+        showAllMemories.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    List<Memory> memories = Memory.getAllMemories(user);
+
+                    for( Memory memory : memories)
+                    {
+
+                        String title = memory.getTitle();
+                        if (title == null){
+                            title = "Empty title";
+                        }
+                        if (memory.getCoordinates().equals(memoryModel.getCoordinates())){
+                            googleMap.addMarker(new MarkerOptions().position(memory.getCoordinates()).title(title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+
+                        } else{
+                            googleMap.addMarker(new MarkerOptions().position(memory.getCoordinates()).title(title).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+                        }
+                    }
+
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(memoryModel.getCoordinates(), 0));
+                } else {
+                    googleMap.clear();
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(memoryModel.getCoordinates(), 8));
+                    googleMap.addMarker(new MarkerOptions().position(memoryModel.getCoordinates()).title("Your current memory is here !").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+
+                }
+
+            }
+        });
+
+        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
                 .build();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        googleMap = mapFragment.getMap();
+        mapFragment.getMapAsync(this);
 
-        googleMap.setMyLocationEnabled(true);
 
-        googleMap.setMapType(MAP_TYPE_NORMAL);
 
         return view;
     }
@@ -253,9 +295,12 @@ public class MemoryFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     @Override
-    public void onStart() {
+    public void onMapReady(GoogleMap gMap) {
+        googleMap = gMap;
+        googleMap.setMyLocationEnabled(true);
+        googleMap.setMapType(MAP_TYPE_NORMAL);
         mGoogleApiClient.connect();
-        super.onStart();
+
     }
 
     @Override
@@ -327,6 +372,9 @@ public class MemoryFragment extends Fragment implements GoogleApiClient.Connecti
 
     @Override
     public void onConnected(Bundle bundle) {
+
+        LatLng userLocation;
+
         LocationManager service = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         String provider = service.getBestProvider(criteria, false);
@@ -336,29 +384,26 @@ public class MemoryFragment extends Fragment implements GoogleApiClient.Connecti
             ActivityCompat.requestPermissions( getActivity(), new String[] {  android.Manifest.permission.ACCESS_COARSE_LOCATION  }, MY_PERMISSION_ACCESS_COARSE_LOCATION );
         }
 
-
-        //LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, 0, 0,  );
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-        // location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (location == null) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, null, mLocationListener);
+        } else {
+            if (memoryModel.getCoordinates() == null){
+                memoryModel.setCoordinates(new LatLng(location.getLatitude(), location.getLongitude()));
+            }
         }
 
-        //service.requestLocationUpdates(provider, 0, 0, getContext());
-        //Location location = service.getLastKnownLocation(provider);
-
-        LatLng userLocation = new LatLng(location.getLatitude(),location.getLongitude());
-
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15));
+        if (memoryModel.getCoordinates() != null){
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(memoryModel.getCoordinates(), 15));
+            googleMap.addMarker(new MarkerOptions().position(memoryModel.getCoordinates()).title("Your current memory is here !").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        }
 
 
-        googleMap.addMarker(new MarkerOptions().position(userLocation).title("You are here !").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override

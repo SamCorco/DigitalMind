@@ -50,7 +50,18 @@
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="350dp"/>
+            android:layout_height="350dp"
+            android:layout_margin="32dp"/>
+
+        <ToggleButton
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/showAll"
+            android:textOn="@string/showOne"
+            android:textOff="@string/showAll"
+            android:id="@+id/showAllMemories"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <RelativeLayout
             android:layout_marginTop="@dimen/activity_vertical_margin"

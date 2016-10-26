@@ -1,5 +1,6 @@
 package com.jemsam.digitalmind.model;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.orm.SugarRecord;
 
 import java.util.Date;
@@ -18,6 +19,8 @@ public class Memory extends SugarRecord {
     private Boolean isFavorite = false;
     private String imagePath;
     private float rating = 2.5f;
+    private Double latitude;
+    private Double longitude;
 
     public Memory() {
     }
@@ -102,6 +105,18 @@ public class Memory extends SugarRecord {
         this.rating = rating;
     }
 
+    public void setCoordinates(LatLng coordinates) {
+        this.latitude = coordinates.latitude;
+        this.longitude = coordinates.longitude;
+    }
+
+    public LatLng getCoordinates() {
+        if (latitude == null || longitude == null){
+            return null;
+        }
+        return new LatLng(latitude, longitude);
+    }
+
     public static List<Memory> sortByDate(Boolean isDesc, User user){
 
         Memory.executeQuery("VACUUM");
@@ -165,6 +180,7 @@ public class Memory extends SugarRecord {
             memory.setIsFavorite(memoryToUpdate.getIsFavorite());
             memory.setImagePath(memoryToUpdate.getImagePath());
             memory.setRating(memoryToUpdate.getRating());
+            memory.setCoordinates(memoryToUpdate.getCoordinates());
             memory.save();
         }
 
@@ -180,4 +196,6 @@ public class Memory extends SugarRecord {
 
         return null;
     }
+
+
 }
