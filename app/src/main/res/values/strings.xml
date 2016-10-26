@@ -9,4 +9,16 @@
     <string name="dialog_add_image">Add image</string>
     <string name="dialog_take_photo_item">Take photo</string>
     <string name="dialog_choose_image_item">Choose image</string>
+    <string name="addTag">+</string>
+    <string name="tag_hint">Insert a tag here..</string>
+    <string name="search">Rechercher..</string>
+    <string name="share">Partager</string>
+    <string name="share_chooser_text">Share it</string>
+    <string name="error_empty">Field required</string>
+    <string name="landing_login">Login</string>
+    <string name="landing_signin">Sign in</string>
+    <string name="landing_button_connect">Connect</string>
+    <string name="landing_button_register">Register</string>
+    <string name="password">Password</string>
+
 </resources>

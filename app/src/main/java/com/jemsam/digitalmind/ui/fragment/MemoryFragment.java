@@ -1,7 +1,5 @@
-package com.jemsam.digitalmind;
+package com.jemsam.digitalmind.ui.fragment;
 
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,14 +17,21 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -39,14 +44,22 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.jemsam.digitalmind.model.Memory;
+import com.jemsam.digitalmind.R;
+import com.jemsam.digitalmind.model.Tag;
+import com.jemsam.digitalmind.model.TagMemory;
+import com.jemsam.digitalmind.model.User;
+import com.jemsam.digitalmind.utils.Utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.IOException;
+import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.LOCATION_SERVICE;
-import static com.google.android.gms.common.api.GoogleApiClient.*;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
 
 
@@ -54,25 +67,23 @@ import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
  * Created by jeremy.toussaint on 19/10/16.
  */
 
-public class MemoryFragment extends Fragment implements ConnectionCallbacks,OnConnectionFailedListener {
+public class MemoryFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener {
 
     public static final String TAG = MemoryFragment.class.getSimpleName();
     private static final int REQUEST_CAMERA = 0;
     private static final int IMG_RESULT = 1;
     private static final String TEMP_FILE = "temp.jpg";
     private Memory memoryModel;
-    private EditText titleEd;
-    private EditText descriptionEd;
+    private EditText titleEt;
+    private EditText descriptionEt;
     private ImageView imageToAttach;
-    private GoogleMap googleMap;
+    private RatingBar ratingBar;
+    private LinearLayout tagContainer;
+    private User user;
 
+    private GoogleMap googleMap;
     private static final int MY_PERMISSION_ACCESS_COARSE_LOCATION = 11; //need this ???
     private GoogleApiClient mGoogleApiClient;
-
-    public void setMemoryModel(Memory memoryModel) {
-        this.memoryModel = memoryModel;
-    }
-
 
     private final LocationListener mLocationListener = new LocationListener(){
 
@@ -82,37 +93,69 @@ public class MemoryFragment extends Fragment implements ConnectionCallbacks,OnCo
         }
     };
 
+    public void setMemoryModel(Memory memoryModel) {
+        this.memoryModel = memoryModel;
+    }
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_memory_detail, container, false);
+        setHasOptionsMenu(true);
+        setRetainInstance(true);
 
-        titleEd = (EditText) view.findViewById(R.id.title);
-        titleEd.setText(memoryModel.getTitle());
+        user = User.getUser(Utils.getPrefLogin(getContext()), Utils.getPrefPassword(getContext()));
 
-        descriptionEd = (EditText) view.findViewById(R.id.description);
-        descriptionEd.setText(memoryModel.getDescription());
+
+        titleEt = (EditText) view.findViewById(R.id.title);
+        if (memoryModel.getTitle() != null){
+            titleEt.setText(memoryModel.getTitle());
+
+        }
+
+        descriptionEt = (EditText) view.findViewById(R.id.description);
+        if (memoryModel.getDescription() != null){
+            descriptionEt.setText(memoryModel.getDescription());
+
+        }
 
         imageToAttach = (ImageView) view.findViewById(R.id.imageToAttach);
         if (memoryModel.getImagePath() != null){
             imageToAttach.setImageBitmap(BitmapFactory.decodeFile(memoryModel.getImagePath()));
         }
 
-//start map
+        ratingBar = (RatingBar) view.findViewById(R.id.ratingBar);
+        ratingBar.setRating(memoryModel.getRating());
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                Log.d(TAG, "onRatingChanged: " + rating);
+                memoryModel.setRating(rating);
 
-         mGoogleApiClient = new GoogleApiClient.Builder(getActivity()).addApi(LocationServices.API)
-                .build();
+            }
+        });
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        googleMap = mapFragment.getMap();
+        tagContainer = (LinearLayout) view.findViewById(R.id.tagContainer);
+        appendAllTags();
 
-        googleMap.setMyLocationEnabled(true);
 
-        googleMap.setMapType(MAP_TYPE_NORMAL);
 
-//stop map
+        final EditText tagEd = (EditText) view.findViewById(R.id.tagEt);
+        ImageButton addTagBtn = (ImageButton) view.findViewById(R.id.addTag);
+        addTagBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String tagContent = tagEd.getText().toString();
+                Tag tag = Tag.getTag(tagContent, user);
+                tag.linkMemory(memoryModel);
+                appendAllTags();
+                tagEd.setText("");
+            }
+        });
 
-        Button attachImageButton = (Button) view.findViewById(R.id.attachImage);
+
+
+        ImageButton attachImageButton = (ImageButton) view.findViewById(R.id.attachImage);
         attachImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -134,7 +177,59 @@ public class MemoryFragment extends Fragment implements ConnectionCallbacks,OnCo
             }
         });
 
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity()).addApi(LocationServices.API)
+                .build();
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        googleMap = mapFragment.getMap();
+
+        googleMap.setMyLocationEnabled(true);
+
+        googleMap.setMapType(MAP_TYPE_NORMAL);
+
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.menu_detail, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.share:
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, "Memory \"" + memoryModel.getTitle() + "\" extracted from my mind:\n\n" + memoryModel.getDescription());
+                sendIntent.setType("text/plain");
+                startActivity(Intent.createChooser(sendIntent, "Spread your mind!"));
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    private void appendAllTags() {
+        tagContainer.removeAllViews();
+        List<TagMemory> tagMemories = TagMemory.getAllTagMemories();
+
+        for (TagMemory tagMemory: tagMemories){
+            if (tagMemory.getMemoryId().equals(memoryModel.getId())){
+                TextView tv = new TextView(getContext());
+                Tag tag = Tag.getTag(tagMemory.getTagId());
+                if (tag != null){
+                    tv.setText("#" + tag.getTagContent());
+                    tagContainer.addView(tv);
+                }
+
+            }
+        }
+
     }
 
     private void openImagePicker() {
@@ -143,16 +238,18 @@ public class MemoryFragment extends Fragment implements ConnectionCallbacks,OnCo
     }
 
     private void openCamera() {
-        /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        File f = new File(Environment.getExternalStorageDirectory(), TEMP_FILE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
-        startActivityForResult(intent, REQUEST_CAMERA);*/
+        final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT,  FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider",getTempFile()));//Uri.fromFile(getTempFile())
+        startActivityForResult(intent, REQUEST_CAMERA);
+    }
 
-        Uri mPhotoUri = getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                new ContentValues());
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoUri);
-        startActivityForResult(intent,REQUEST_CAMERA);
+    private File getTempFile(){
+        //it will return /sdcard/image.tmp
+        final File path = new File( Environment.getExternalStorageDirectory(), getContext().getPackageName() );
+        if(!path.exists()){
+            path.mkdir();
+        }
+        return new File(path, "image.tmp");
     }
 
     @Override
@@ -169,8 +266,8 @@ public class MemoryFragment extends Fragment implements ConnectionCallbacks,OnCo
 
     @Override
     public void onDestroy() {
-        memoryModel.setTitle(titleEd.getText().toString());
-        memoryModel.setDescription(descriptionEd.getText().toString());
+        memoryModel.setTitle(titleEt.getText().toString());
+        memoryModel.setDescription(descriptionEt.getText().toString());
         Memory.update(memoryModel);
         super.onDestroy();
     }
@@ -182,7 +279,7 @@ public class MemoryFragment extends Fragment implements ConnectionCallbacks,OnCo
             if (requestCode == IMG_RESULT && resultCode == RESULT_OK && null != data) {
                 getImageFromGallery(data);
             } else if(requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
-                getImageFromCamera();
+                getImageFromCamera(data);
             }
         } catch (Exception e) {
             Toast.makeText(getContext(), "Please try again", Toast.LENGTH_LONG).show();
@@ -201,38 +298,31 @@ public class MemoryFragment extends Fragment implements ConnectionCallbacks,OnCo
         cursor.close();
     }
 
-
-    private void getImageFromCamera() {
-        File f = new File(Environment.getExternalStorageDirectory().toString());
-        for (File temp : f.listFiles()) {
-            if (temp.getName().equals(TEMP_FILE)) {
-                f = temp;
-                break;
-            }
-        }
+    private void getImageFromCamera(Intent data) {
+        final File file = getTempFile();
+        Bitmap bitmap = null;
         try {
-            Bitmap bm;
-            BitmapFactory.Options btmapOptions = new BitmapFactory.Options();
-            bm = BitmapFactory.decodeFile(f.getAbsolutePath(),btmapOptions);
-            String path = Environment.getExternalStorageDirectory()
-                    + File.separator
-                    + getContext().getString(R.string.app_name);
-
-            f.delete();
-            OutputStream fOut = null;
-            File dir = new File(path);
-            dir.mkdirs();
-            File file = new File(dir,String.valueOf(System.currentTimeMillis()) + ".jpg");
-            fOut = new FileOutputStream(file);
-            bm.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
-            fOut.flush();
-            fOut.close();
-
-            memoryModel.setImagePath(file.getAbsolutePath());
-            imageToAttach.setImageBitmap(bm);
-        } catch (Exception e) {
+            bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), FileProvider.getUriForFile(getContext(), getContext().getApplicationContext().getPackageName() + ".provider",file));//Uri.fromFile(file)
+        } catch (IOException e) {
             e.printStackTrace();
         }
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, stream);
+        byte[] byteArray = stream.toByteArray(); // convert camera photo to byte array
+        FileOutputStream fo = null;
+        try {
+            fo = new FileOutputStream(file);
+            fo.write(byteArray);
+            fo.flush();
+            fo.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        memoryModel.setImagePath(file.getAbsolutePath());
+        imageToAttach.setImageBitmap(bitmap);
     }
 
     @Override
@@ -275,4 +365,5 @@ public class MemoryFragment extends Fragment implements ConnectionCallbacks,OnCo
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
+
 }
