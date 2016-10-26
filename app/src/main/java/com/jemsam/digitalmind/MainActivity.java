@@ -1,5 +1,6 @@
 package com.jemsam.digitalmind;
 
+import android.location.Location;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationServices;
 
 import java.util.Date;
 import java.util.List;
@@ -24,8 +30,6 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
     private MemoryAdapter memoryAdapter;
     private RecyclerView recyclerView;
     private boolean isAlphaDescSorting;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
         newNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 Fragment memoryFragment = new MemoryFragment();
                 Memory memory = new Memory(new Date());
@@ -60,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
                 ft.commit();
             }
         });
+
+
     }
 
     @Override
@@ -103,4 +110,18 @@ public class MainActivity extends AppCompatActivity implements MemoryAdapter.Mem
         super.onBackPressed();
         memoryAdapter.setMemories(Memory.getAllMemories());
     }
+
+    /*@Override
+    public void onConnected(Bundle bundle) {
+        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (location == null) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }*/
 }
